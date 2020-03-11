@@ -1,7 +1,7 @@
 # '''
 # Linked List hash table key/value pair
 # '''
-class LinkedPair:
+class Node:
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -53,12 +53,29 @@ class HashTable:
 
         Fill this in.
         '''
-        current_node = self.storage[self._hash_mod(key)]
-        if current_node == None:
-            self.storage[self._hash_mod(key)] = LinkedPair(key, value)
 
-        # index = self._hash_mod(key)
-        #
+        # Get the Index by using the key
+        index = self._hash_mod(key)
+
+        # If the index doesn't exist, add it.
+        if not self.storage[index]:
+            self.storage[index] = Node(key, value)
+        else:
+            node = self.storage[index]
+
+            while True:
+                # If the node's key equals to the key passed in, change the node's new value
+                if node.key == key:
+                    node.value = value
+                    break
+                # If there's no next node, create a new node with the passed in key and value
+                elif not node.next:
+                    node.next = Node(key, value)
+                    break
+                # Loop through
+                else:
+                    node = node.next
+
         # if self.storage[index]is not None:
         #     print("ERROR: Key in Use")
         # else:
@@ -76,12 +93,32 @@ class HashTable:
         Fill this in.
         '''
 
+        # Get the index using the key
         index = self._hash_mod(key)
 
-        if self.storage[index] is not None:
-            self.storage[index] = None
-        else:
-            print("Key Not Found")
+        # Get the node using the index
+        node = self.storage[index]
+
+        # If the node doesn't exist, print error message
+        if not node:
+            print("key not found")
+
+        # Loop through to see if key exists, print error message if it doesn't
+        while node.key != key:
+            if not node.next:
+                print("key not found")
+                return
+            node = node.next
+
+        # Removes the value stored with the given key.
+        node.value = None
+
+        # index = self._hash_mod(key)
+        #
+        # if self.storage[index] is not None:
+        #     self.storage[index] = None
+        # else:
+        #     print("Key Not Found")
 
 
     def retrieve(self, key):
@@ -92,10 +129,28 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self.storage[self._hash_mod(key)]
 
-        return self.storage[index]
+        # Get the index using the key
+        index = self._hash_mod(key)
 
+        # Get the node using the index
+        node = self.storage[index]
+
+        if not node:
+            return None
+
+        # Loop through to see if key exists
+        while node.key != key:
+            if not node.next:
+                return None
+            node = node.next
+
+        # Returns the value if the key is found
+        return node.value
+        # index = self.storage[self._hash_mod(key)]
+        #
+        # return self.storage[index]
+        #
         # index = self._hash_mod(key)
         #
         # return self.storage[index]
@@ -108,29 +163,18 @@ class HashTable:
 
         Fill this in.
         '''
-        self.capacity *= 2
 
-        new_storage = []
-
-        for item in self.storage:
-            while item:
-                key = item.key
-                value = item.value
-                new_storage.append([key, value])
-                item = item.next
-
+        temp = self.storage[0:]
+        self.capacity = self.capacity * 2
         self.storage = [None] * self.capacity
-        for item in new_storage:
-            self.insert(item[0], item[1])
 
-        # old_storage = self.storage.copy()
-        # self.capacity = self.capacity *2
-        # self.storage = [None] * self.capacity
-        #
-        # for bucket_item in old_storage
-        #     self.insert(bucket_item)
-
-
+        # Loop through the temporary storage
+        for item in temp:
+            node = item
+            # Add each node into the storage
+            while node:
+                self.insert(node.key, node.value)
+                node = node.next
 
 if __name__ == "__main__":
     ht = HashTable(2)
